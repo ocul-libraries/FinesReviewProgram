@@ -1,4 +1,1 @@
-pandas
-openpyxl
-bs4
-pyyml
+pyyaml

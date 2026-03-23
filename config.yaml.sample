@@ -4,10 +4,14 @@ port: 25
 username: ""
 password: ""
 
-# The directory from which the report should begin searching for files prefixed with al-
+# The directory to search for al-* school directories (e.g., /data/alma-stats)
 scriptpath: ""
 
-# The simple mail transfer protocol server that will send notifications to AFN leads to pick up their reports
+# Directory to copy sorted per-school reports into (e.g., /data/processed-files)
+# Each school gets its own subdirectory. Leave empty to skip copying.
+output_path: ""
+
+# SMTP server for sending notification emails
 smtpserver: ""
 
 # The sending address
@@ -16,7 +20,9 @@ email_source: ""
 # Subject line in email
 email_subject: "Your AFN fines and fees report is ready for pick-up"
 
-#Email recipients; a list of strings that should contain AFN institution leads
-email_recipients: [""]
-
+# Email body
 message: "Please check your folder on the Scholars Portal server to pick up your fines and fees report"
+
+# Script admin emails — receive the processing log after each run
+script_admins:
+  - ""
