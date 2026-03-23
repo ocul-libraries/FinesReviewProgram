@@ -1,0 +1,97 @@
+schools:
+  - name: "Algoma University"
+    aliases: []
+    output_file: "Algoma_University.csv"
+    emails: []
+
+  - name: "Brock University"
+    aliases: []
+    output_file: "Brock_University.csv"
+    emails: []
+
+  - name: "Carleton University"
+    aliases: []
+    output_file: "Carleton_University.csv"
+    emails: []
+
+  - name: "Lakehead University"
+    aliases: []
+    output_file: "Lakehead_University.csv"
+    emails: []
+
+  - name: "Laurentian University"
+    aliases: []
+    output_file: "Laurentian_University.csv"
+    emails: []
+
+  - name: "McMaster University Library"
+    aliases:
+      - "McMaster Library"
+      - "McMaster University"
+    output_file: "McMaster_University_Library.csv"
+    emails: []
+
+  - name: "Nipissing University-Canadore College"
+    aliases: []
+    output_file: "Nipissing_University-Canadore_College.csv"
+    emails: []
+
+  - name: "OCAD University"
+    aliases: []
+    output_file: "OCAD_University.csv"
+    emails: []
+
+  - name: "Ontario Tech University/Durham College"
+    aliases: []
+    output_file: "Ontario_Tech_University_Durham_College.csv"
+    emails: []
+
+  - name: "Queen's University"
+    aliases: []
+    output_file: "Queens_University.csv"
+    emails: []
+
+  - name: "Toronto Metropolitan University"
+    aliases: []
+    output_file: "Toronto_Metropolitan_University.csv"
+    emails: []
+
+  - name: "Trent University Library & Archives"
+    aliases: []
+    output_file: "Trent_University_Library_and_Archives.csv"
+    emails: []
+
+  - name: "University of Guelph"
+    aliases: []
+    output_file: "University_of_Guelph.csv"
+    emails: []
+
+  - name: "University of Ottawa"
+    aliases: []
+    output_file: "University_of_Ottawa.csv"
+    emails: []
+
+  - name: "University of Waterloo"
+    aliases: []
+    output_file: "University_of_Waterloo.csv"
+    emails: []
+
+  - name: "University of Windsor"
+    aliases: []
+    output_file: "University_of_Windsor.csv"
+    emails: []
+
+  - name: "Western University"
+    aliases: []
+    output_file: "Western_University.csv"
+    emails: []
+
+  - name: "Wilfrid Laurier University"
+    aliases: []
+    output_file: "Wilfrid_Laurier_University.csv"
+    emails: []
+
+  - name: "York University"
+    aliases: []
+    output_file: "York_University.csv"
+    emails: []
