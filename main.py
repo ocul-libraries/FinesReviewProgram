@@ -187,6 +187,23 @@ def process_reports(school_lookup, config, output_dir=OUTPUT_DIR):
     logging.info(f"Wrote {len(school_rows)} sorted report files to {output_dir}/")
 
 
+def clean_previous_reports(dest_path, schools_list):
+    """Remove previous reports from per-school output directories."""
+    removed = 0
+    for school in schools_list:
+        school_dir_name = os.path.splitext(school['output_file'])[0]
+        school_dir = os.path.join(dest_path, school_dir_name)
+        if not os.path.isdir(school_dir):
+            continue
+        for filename in os.listdir(school_dir):
+            if filename.endswith('.csv'):
+                filepath = os.path.join(school_dir, filename)
+                os.remove(filepath)
+                logging.info(f"  Removed old report: {school_dir_name}/{filename}")
+                removed += 1
+    logging.info(f"Cleaned up {removed} previous report(s) from output directories")
+
+
 def copy_to_school_dirs(output_dir, dest_path, schools_list):
     """Copy sorted reports to per-school directories under dest_path."""
     os.makedirs(dest_path, exist_ok=True)
@@ -213,11 +230,25 @@ def copy_to_school_dirs(output_dir, dest_path, schools_list):
     logging.info(f"Copied {copied} reports to per-school directories under {dest_path}")
 
 
-def build_html_email(school_name, message_text):
+def build_html_email(school_name, message_text, run_month_year, pickup_url, pickup_label, contact_email):
     """Build a clean HTML email body from the plain text message."""
     escaped = message_text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
     paragraphs = ''.join(f'<p style="margin:0 0 12px 0;">{p.strip()}</p>'
                          for p in escaped.split('\n') if p.strip())
+
+    pickup_html = ""
+    if pickup_url:
+        pickup_html = f"""
+        <p style="margin:0 0 12px 0;">
+          Pick up your report for the month of {run_month_year} at the
+          <a href="{pickup_url}" style="color:#1a73e8;">{pickup_label}</a>.
+        </p>"""
+
+    contact_html = ""
+    if contact_email:
+        contact_html = f"""
+          For questions or concerns, contact
+          <a href="mailto:{contact_email}" style="color:#888;">{contact_email}</a>."""
 
     return f"""\
 <!DOCTYPE html>
@@ -228,13 +259,12 @@ def build_html_email(school_name, message_text):
     <tr>
       <td style="padding:24px;background:#ffffff;border:1px solid #e0e0e0;border-radius:4px;">
         <h2 style="margin:0 0 16px 0;font-size:18px;color:#1a1a1a;">
-          AFN Fines and Fees Report — {school_name}
+          AFN Fines and Fees Report &mdash; {school_name}
         </h2>
-        {paragraphs}
+        {paragraphs}{pickup_html}
         <hr style="border:none;border-top:1px solid #e0e0e0;margin:20px 0;">
         <p style="margin:0;font-size:12px;color:#888;">
-          This is an automated message from the Scholars Portal AFN Fines Report system.
-          If you believe you received this in error, please contact the system administrator.
+          This is an automated message from the Scholars Portal AFN Fines Report system.{contact_html}
         </p>
       </td>
     </tr>
@@ -259,10 +289,15 @@ def send_emails(config, schools_list, output_dir=OUTPUT_DIR):
         logging.info("No schools have email recipients configured, skipping notifications")
         return
 
-    run_date = datetime.now().strftime("%B %d, %Y")
+    now = datetime.now()
+    run_date = now.strftime("%B %d, %Y")
+    run_month_year = now.strftime("%B %Y")
     email_subject = f"{config['email_subject']} ({run_date})"
     email_source = config["email_source"]
     email_message = config["message"]
+    pickup_url = config.get("report_pickup_url", "")
+    pickup_label = config.get("report_pickup_label", "report server")
+    contact_email = config.get("contact_email", "")
 
     try:
         with smtplib.SMTP(config["smtpserver"], config["port"]) as server:
@@ -278,8 +313,19 @@ def send_emails(config, schools_list, output_dir=OUTPUT_DIR):
                 message["Subject"] = email_subject
 
                 # Plain text first, HTML second (email clients prefer the last part)
-                message.attach(MIMEText(email_message, "plain"))
-                message.attach(MIMEText(build_html_email(school_name, email_message), "html"))
+                plain_body = f"{email_message}\n\n"
+                if pickup_url:
+                    plain_body += (
+                        f"Pick up your report for the month of {run_month_year} at the "
+                        f"{pickup_label}:\n{pickup_url}\n\n"
+                    )
+                if contact_email:
+                    plain_body += f"For questions or concerns, contact {contact_email}"
+                message.attach(MIMEText(plain_body, "plain"))
+                message.attach(MIMEText(build_html_email(
+                    school_name, email_message, run_month_year,
+                    pickup_url, pickup_label, contact_email
+                ), "html"))
 
                 server.sendmail(email_source, emails, message.as_string())
                 logging.info(f"  Sent notification to {school_name}: {', '.join(emails)}")
@@ -341,10 +387,12 @@ def main():
         # Step 1: Read input files, split by school, sort by email, write reports
         process_reports(school_lookup, config)
 
-        # Step 2: Copy reports to per-school pickup directories
+        # Step 2: Clean previous reports and copy new ones to per-school pickup directories
         output_path = config.get("output_path")
         if output_path:
-            logging.info(f"Copying reports to school pickup directories...")
+            logging.info("Cleaning previous reports from school pickup directories...")
+            clean_previous_reports(output_path, schools_list)
+            logging.info("Copying new reports to school pickup directories...")
             copy_to_school_dirs(OUTPUT_DIR, output_path, schools_list)
         else:
             logging.info("No output_path configured, skipping copy to school directories")
