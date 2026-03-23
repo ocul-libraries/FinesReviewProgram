@@ -1,3 +1,11 @@
+# Email addresses can be added in block style (one per line):
+#  emails:
+#    - alice@example.ca
+#    - bob@example.ca
+#
+# or in inline/flow style (comma-separated):
+#  emails: [alice@example.ca, bob@example.ca]
+#
 schools:
   - name: "Algoma University"
     aliases: []
