@@ -20,9 +20,6 @@ email_source: ""
 # Subject line in email
 email_subject: "Your AFN loans and fees report is ready for pick-up"
 
-# Email body
-message: "Please check your folder on the Scholars Portal server to pick up your loans and fees report"
-
 # URL where schools pick up their reports
 report_pickup_url: "https://app.globus.org/collections?scope=shared-with-me"
 report_pickup_label: "Globus server"

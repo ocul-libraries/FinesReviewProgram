@@ -230,19 +230,14 @@ def copy_to_school_dirs(output_dir, dest_path, schools_list):
     logging.info(f"Copied {copied} reports to per-school directories under {dest_path}")
 
 
-def build_html_email(school_name, message_text, run_month_year, pickup_url, pickup_label, contact_email):
-    """Build a clean HTML email body from the plain text message."""
-    escaped = message_text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-    paragraphs = ''.join(f'<p style="margin:0 0 12px 0;">{p.strip()}</p>'
-                         for p in escaped.split('\n') if p.strip())
-
-    pickup_html = ""
+def build_html_email(school_name, run_month_year, pickup_url, pickup_label, contact_email):
+    """Build a clean HTML email body."""
+    body_text = f"Your loans and fees report for the month of {run_month_year} is ready for pick up"
     if pickup_url:
-        pickup_html = f"""
-        <p style="margin:0 0 12px 0;">
-          Pick up your report for the month of {run_month_year} at the
-          <a href="{pickup_url}" style="color:#1a73e8;">{pickup_label}</a>.
-        </p>"""
+        body_text = (
+            f'Your loans and fees report for the month of {run_month_year} is ready for pick up at the '
+            f'<a href="{pickup_url}" style="color:#1a73e8;">{pickup_label}</a>'
+        )
 
     contact_html = ""
     if contact_email:
@@ -259,9 +254,9 @@ def build_html_email(school_name, message_text, run_month_year, pickup_url, pick
     <tr>
       <td style="padding:24px;background:#ffffff;border:1px solid #e0e0e0;border-radius:4px;">
         <h2 style="margin:0 0 16px 0;font-size:18px;color:#1a1a1a;">
-          AFN Fines and Fees Report &mdash; {school_name}
+          AFN Loans and Fees Report &mdash; {school_name}
         </h2>
-        {paragraphs}{pickup_html}
+        <p style="margin:0 0 12px 0;">{body_text}.</p>
         <hr style="border:none;border-top:1px solid #e0e0e0;margin:20px 0;">
         <p style="margin:0;font-size:12px;color:#888;">
           This is an automated message from the Scholars Portal AFN Fines Report system.{contact_html}
@@ -294,7 +289,6 @@ def send_emails(config, schools_list, output_dir=OUTPUT_DIR):
     run_month_year = now.strftime("%B %Y")
     email_subject = f"{config['email_subject']} ({run_date})"
     email_source = config["email_source"]
-    email_message = config["message"]
     pickup_url = config.get("report_pickup_url", "")
     pickup_label = config.get("report_pickup_label", "report server")
     contact_email = config.get("contact_email", "")
@@ -313,17 +307,15 @@ def send_emails(config, schools_list, output_dir=OUTPUT_DIR):
                 message["Subject"] = email_subject
 
                 # Plain text first, HTML second (email clients prefer the last part)
-                plain_body = f"{email_message}\n\n"
+                plain_body = f"Your loans and fees report for the month of {run_month_year} is ready for pick up"
                 if pickup_url:
-                    plain_body += (
-                        f"Pick up your report for the month of {run_month_year} at the "
-                        f"{pickup_label}:\n{pickup_url}\n\n"
-                    )
+                    plain_body += f" at the {pickup_label}:\n{pickup_url}"
+                plain_body += ".\n"
                 if contact_email:
-                    plain_body += f"For questions or concerns, contact {contact_email}"
+                    plain_body += f"\nFor questions or concerns, contact {contact_email}"
                 message.attach(MIMEText(plain_body, "plain"))
                 message.attach(MIMEText(build_html_email(
-                    school_name, email_message, run_month_year,
+                    school_name, run_month_year,
                     pickup_url, pickup_label, contact_email
                 ), "html"))
 
