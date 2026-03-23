@@ -1,4 +1,4 @@
-# Configuration file for AFN fines and fees report script
+# Configuration file for AFN loans and fees report script
 
 port: 25
 username: ""
@@ -18,10 +18,10 @@ smtpserver: ""
 email_source: ""
 
 # Subject line in email
-email_subject: "Your AFN fines and fees report is ready for pick-up"
+email_subject: "Your AFN loans and fees report is ready for pick-up"
 
 # Email body
-message: "Please check your folder on the Scholars Portal server to pick up your fines and fees report"
+message: "Please check your folder on the Scholars Portal server to pick up your loans and fees report"
 
 # Script admin emails — receive the processing log after each run
 script_admins:
