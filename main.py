@@ -106,6 +106,14 @@ def match(directory):
     logging.info(f"Found {len(matches)} input files in {directory}")
     return matches
 
+# Replaces empty spaces in input with zeroes where appropriate (entries 5 & 6)
+# @row  A row of data from the original csv
+def insertZero(row):
+    if row[5] == "":
+        row[5] = 0
+    if row[6] == "":
+        row[6] = "0"
+    return row
 
 def check_file_headers(matcheslist):
     """Validate file headers. Returns list of files with correct headers."""
@@ -157,7 +165,7 @@ def process_reports(school_lookup, config, output_dir=OUTPUT_DIR):
                 borrower = row[1].strip() if len(row) > 1 else ''
 
                 if borrower and borrower in school_lookup:
-                    school_rows.setdefault(school_lookup[borrower], []).append(row)
+                    school_rows.setdefault(school_lookup[borrower], []).append(insertZero(row))
                 elif borrower:
                     logging.warning(f"  Unknown borrower '{borrower}' in {os.path.basename(filename)}")
                     error_rows.append(row)
